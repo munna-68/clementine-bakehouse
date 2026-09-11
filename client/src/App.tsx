@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppShell } from "@/components/AppShell";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Switch, Router as WouterRouter } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { OrderProvider } from "./contexts/OrderContext";
@@ -13,7 +13,9 @@ import CustomOrders from "./pages/CustomOrders";
 import TrackOrder from "./pages/TrackOrder";
 import About from "./pages/About";
 
-function Router() {
+const routerBase = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+function AppRoutes() {
   return <AppShell><Switch>
     <Route path="/" component={Home} />
     <Route path="/shop" component={Shop} />
@@ -26,7 +28,7 @@ function Router() {
 }
 
 function App() {
-  return <ErrorBoundary><ThemeProvider defaultTheme="light"><TooltipProvider><OrderProvider><Toaster richColors position="top-center" /><Router /></OrderProvider></TooltipProvider></ThemeProvider></ErrorBoundary>;
+  return <ErrorBoundary><ThemeProvider defaultTheme="light"><TooltipProvider><OrderProvider><Toaster richColors position="top-center" /><WouterRouter base={routerBase}><AppRoutes /></WouterRouter></OrderProvider></TooltipProvider></ThemeProvider></ErrorBoundary>;
 }
 
 export default App;
