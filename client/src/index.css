@@ -271,3 +271,196 @@ body { background: var(--paper); letter-spacing: -.012em; }
   .product-visual { width: 100%; }
   .product-info { min-height: 135px; }
 }
+
+/* ==========================================================================
+   Motion system: one observer, one scroll listener, no per-frame renders.
+   Reveal state is a data attribute because React owns className and would
+   otherwise wipe it. Hidden state is scoped to .js-motion so that without
+   JavaScript every element is simply visible.
+   ========================================================================== */
+
+.js-motion [data-reveal] {
+  opacity: 0;
+  transform: translate3d(var(--reveal-x, 0px), var(--reveal-y, 0px), 0) scale(var(--reveal-scale, 1));
+  transition: opacity .7s var(--ease), transform .7s var(--ease);
+  transition-delay: var(--delay, 0ms);
+}
+.js-motion [data-reveal="up"] { --reveal-y: 26px; }
+.js-motion [data-reveal="down"] { --reveal-y: -26px; }
+.js-motion [data-reveal="left"] { --reveal-x: 28px; }
+.js-motion [data-reveal="right"] { --reveal-x: -28px; }
+.js-motion [data-reveal="scale"] { --reveal-y: 14px; --reveal-scale: .955; }
+.js-motion [data-reveal][data-revealed] { opacity: 1; transform: none; }
+
+/* hero entrance: each display line rises on its own beat */
+.js-motion .hero-line {
+  display: block;
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition: opacity .8s var(--ease), transform .8s var(--ease);
+  transition-delay: var(--delay, 0ms);
+}
+.js-motion .hero-line[data-revealed] { opacity: 1; transform: none; }
+
+/* parallax runs on its own property so it never fights a reveal transform */
+[data-parallax] {
+  transform: translate3d(0, var(--parallax, 0px), 0) scale(var(--parallax-scale, 1));
+  will-change: transform;
+}
+
+/* scroll progress rail */
+.scroll-rail { position: fixed; inset: 0 0 auto 0; height: 2px; z-index: 60; pointer-events: none; }
+.scroll-rail i {
+  display: block;
+  height: 100%;
+  background: var(--orange);
+  transform: scaleX(var(--scroll-progress, 0));
+  transform-origin: 0 50%;
+}
+
+/* header condense */
+.site-header { transition: box-shadow .3s var(--ease); }
+.header-inner { transition: height .34s var(--ease); }
+html.scrolled .site-header { box-shadow: 0 1px 26px rgba(16,34,45,.075); }
+html.scrolled .header-inner { height: 62px; }
+
+/* back to top */
+.back-to-top {
+  position: fixed;
+  right: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  z-index: 45;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(16,34,45,.2);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, 10px, 0);
+  transition: opacity .3s var(--ease), transform .3s var(--ease), visibility .3s, background .2s var(--ease), color .2s var(--ease);
+}
+html.scrolled .back-to-top { opacity: 1; visibility: visible; transform: none; }
+.back-to-top:hover { background: var(--ink); color: var(--paper); }
+
+/* counter ticker */
+.marquee { overflow: hidden; background: var(--ink); border-top: 1px solid rgba(255,255,255,.13); }
+.marquee-track { display: flex; width: max-content; animation: marquee-scroll 52s linear infinite; }
+.marquee-group { display: flex; flex: none; }
+.marquee-group > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 15px 28px;
+  color: #bcd1d5;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.marquee-group i { width: 5px; height: 5px; flex: none; border-radius: 50%; background: var(--orange); }
+.marquee-group b { color: var(--yellow); font-weight: 700; }
+@keyframes marquee-scroll { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
+
+/* stagger: pure CSS, so no inline styles are needed on any component */
+.hero-line:nth-of-type(1) { --delay: 40ms; }
+.hero-line:nth-of-type(2) { --delay: 150ms; }
+.highlight-grid > [data-reveal]:nth-child(2) { --delay: 90ms; }
+.highlight-grid > [data-reveal]:nth-child(3) { --delay: 180ms; }
+.product-grid > [data-reveal]:nth-child(2n) { --delay: 80ms; }
+.product-grid > [data-reveal]:nth-child(4n) { --delay: 120ms; }
+.home-signals > [data-reveal]:nth-child(2) { --delay: 90ms; }
+.home-signals > [data-reveal]:nth-child(3) { --delay: 180ms; }
+.values-list > [data-reveal]:nth-child(2) { --delay: 90ms; }
+.values-list > [data-reveal]:nth-child(3) { --delay: 180ms; }
+.stat-band > [data-reveal]:nth-child(2) { --delay: 80ms; }
+.stat-band > [data-reveal]:nth-child(3) { --delay: 160ms; }
+.stat-band > [data-reveal]:nth-child(4) { --delay: 240ms; }
+.process-steps > [data-reveal]:nth-child(2) { --delay: 80ms; }
+.process-steps > [data-reveal]:nth-child(3) { --delay: 160ms; }
+.process-steps > [data-reveal]:nth-child(4) { --delay: 240ms; }
+
+/* counted statistics */
+.stat-band {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 34px;
+  padding: 86px max(52px, calc((100vw - 1380px) / 2));
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+.stat-band > div { border-top: 1px solid var(--ink); padding-top: 19px; }
+.stat-value {
+  display: block;
+  font-family: var(--serif);
+  font-size: clamp(44px, 4.6vw, 64px);
+  font-weight: 400;
+  line-height: .94;
+  letter-spacing: -.06em;
+  color: var(--ink);
+}
+.stat-band p { margin: 11px 0 0; max-width: 210px; color: var(--ink-soft); font-size: 12px; line-height: 1.6; }
+
+@media (prefers-reduced-motion: reduce) {
+  .js-motion [data-reveal],
+  .js-motion .hero-line { opacity: 1 !important; transform: none !important; transition: none !important; }
+  [data-parallax] { transform: none !important; }
+  /* the ticker stays readable instead of freezing mid-loop */
+  .marquee { overflow-x: auto; }
+  .marquee-track { animation: none; }
+  html { scroll-behavior: auto; }
+}
+
+@media (max-width: 900px) {
+  .stat-band { grid-template-columns: 1fr 1fr; gap: 30px; padding: 68px 28px; }
+  html.scrolled .header-inner { height: 58px; }
+}
+@media (max-width: 560px) {
+  .stat-band { grid-template-columns: 1fr; gap: 26px; padding: 58px 28px; }
+  .stat-value { font-size: 46px; }
+  .back-to-top { right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); width: 44px; height: 44px; }
+}
+
+/* ==========================================================================
+   Photography replaces the drawn placeholders. The earlier ::before/::after
+   plate-and-shadow decorations are switched off so the pictures can breathe.
+   ========================================================================== */
+
+.product-visual::before, .product-visual::after,
+.highlight-art::before, .highlight-art::after { content: none; }
+
+.product-visual img, .highlight-art img, .kitchen-photo, .collage-photo {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(.94) contrast(1.02);
+}
+.hero-image img { --parallax-scale: 1.08; }
+.kitchen-photo { --parallax-scale: 1.1; }
+.collage-photo { --parallax-scale: 1.1; }
+.aside-photo img { --parallax-scale: 1.07; }
+
+/* index chips must stay legible once a photograph sits behind them */
+.product-number, .highlight-art > span {
+  z-index: 2;
+  padding: 4px 8px;
+  background: rgba(246,245,241,.9);
+  color: var(--ink);
+  font-size: 15px;
+  backdrop-filter: blur(6px);
+}
+.product-badge { z-index: 2; }
+.kitchen-stamp { z-index: 3; }
+.collage-main > span { text-shadow: 0 1px 12px rgba(16,34,45,.6); }
+
+/* the product image now carries the visual, so the card gains a fixed ratio */
+.product-visual { height: 300px; }
+.highlight-art { min-height: 310px; }
+
