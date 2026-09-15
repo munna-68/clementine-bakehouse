@@ -2,6 +2,7 @@
 import { Link, useLocation } from "wouter";
 import { Menu, ShoppingBag, Search, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { BrandMark } from "@/components/BrandMark";
 import { useOrder } from "@/contexts/OrderContext";
 import { useBodyLock, useEscape } from "@/hooks/useBodyLock";
@@ -31,11 +32,10 @@ export function SiteHeader() {
 
   const submitSearch = (event: React.FormEvent) => {
     event.preventDefault();
-    const term = query.trim().toLowerCase();
+    const term = query.trim();
     if (!term) return;
-    const match = ["bun", "coffee", "cupcake", "cookie", "loaf", "sourdough", "seeded", "chocolate", "vanilla", "lemon", "raspberry", "salt"]
-      .some((needle) => term.includes(needle));
-    navigate(match ? `/shop?q=${encodeURIComponent(query.trim())}` : "/shop");
+    // the shop owns the matching rules, including the empty state
+    navigate(`/shop?q=${encodeURIComponent(term)}`);
     setSearching(false);
   };
 
@@ -63,7 +63,7 @@ export function SiteHeader() {
       </form>}
 
       {open && <>
-        <div className="mobile-nav-scrim" onClick={close} aria-hidden="true" />
+        {createPortal(<div className="mobile-nav-scrim" onClick={close} aria-hidden="true" />, document.body)}
         <nav className="mobile-nav" aria-label="Mobile navigation">
           <div className="mobile-nav-status">
             <i className={status.open ? "open" : "closed"} />

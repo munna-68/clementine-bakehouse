@@ -669,4 +669,154 @@ html.scrolled .back-to-top { opacity: 1; visibility: visible; transform: none; }
   .custom-aside .summary-panel .eyebrow { color: #a8c1c9; }
 }
 
+/* ==========================================================================
+   Header search, the mobile navigation panel, and shop search results.
+   ========================================================================== */
+
+.header-inner { position: relative; z-index: 40; }
+.icon-trigger {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(16,34,45,.35);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  transition: background .16s var(--ease), color .16s var(--ease);
+}
+.icon-trigger:hover, .icon-trigger[aria-expanded="true"] { background: var(--ink); color: var(--paper); }
+
+.header-search { display: flex; gap: 12px; max-width: 1512px; margin: 0 auto; padding: 0 52px 18px; }
+.header-search input {
+  flex: 1;
+  min-width: 0;
+  min-height: 46px;
+  padding: 0 15px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 14px;
+}
+.header-search input:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+
+.mobile-nav-scrim { position: fixed; inset: 0; z-index: 39; background: rgba(16,34,45,.38); }
+.mobile-nav { position: relative; z-index: 40; background: var(--paper); }
+.mobile-nav-status { display: flex; align-items: center; gap: 10px; padding: 14px 0 2px; color: var(--ink-soft); font-size: 11px; }
+.mobile-nav-status i { width: 8px; height: 8px; flex: none; border-radius: 50%; background: var(--ink-soft); }
+.mobile-nav-status i.open { background: #3f8f5f; box-shadow: 0 0 0 4px rgba(63,143,95,.16); }
+.mobile-nav-status i.closed { background: #a0722f; }
+.mobile-nav-status span { display: grid; gap: 1px; }
+.mobile-nav-status strong { color: var(--ink); font-size: 12px; }
+.mobile-nav .nav-link { display: flex; align-items: center; min-height: 44px; }
+.mobile-nav-cta { width: 100%; margin-top: 8px; }
+
+.search-banner, .empty-search { grid-column: 1 / -1; }
+.search-banner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 28px; padding: 14px 17px; background: #e9ede8; }
+.search-banner p { margin: 0; font-size: 13px; }
+.search-banner button { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; border: 0; background: none; color: var(--orange-deep); font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.empty-search { display: grid; justify-items: start; gap: 16px; padding: 46px 0 30px; }
+.empty-search p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+
+.pickup-choice { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.pickup-choice .choice { min-height: 40px; }
+
+.notfound-links a { gap: 4px; }
+
+/* ==========================================================================
+   Mobile cascade repair.
+
+   The later "refinement" and "studio art direction" layers declare desktop
+   values OUTSIDE any media query, so they win against the earlier mobile media
+   queries on source order alone. That left the hero grid at
+   `0px 430px 42px` on a 390px screen — .hero-copy squeezed to 56px with the
+   image overlapping it — and blew the shop grid track past its container.
+
+   Two rules of repair: re-assert the mobile layout after those layers, and use
+   minmax(0, 1fr) instead of 1fr so a wide min-content child can never push a
+   track past its container.
+   ========================================================================== */
+
+/* Horizontal reveal travel must never widen the document. `overflow-x: clip`
+   (unlike hidden) does not create a scroll container, so the sticky header and
+   smooth scrolling keep working, and it can legally pair with overflow-y:
+   visible. */
+html { overflow-x: clip; }
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .hero-copy, .hero-image { width: auto; }
+
+  .shop-body { grid-template-columns: minmax(0, 1fr); }
+  .shop-sticky, .category-list { min-width: 0; }
+  .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .track-layout, .custom-layout { grid-template-columns: minmax(0, 1fr); }
+  .page-intro { grid-template-columns: 55px minmax(0, 1fr); }
+  .about-hero, .contact-section, .kitchen-band, .values-section, .custom-pitch { grid-template-columns: minmax(0, 1fr); }
+  .highlight-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .home-signals { grid-template-columns: minmax(0, 1fr); }
+  .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .page-intro { grid-template-columns: minmax(0, 1fr); }
+  .highlight-grid, .product-grid, .home-signals, .footer-grid { grid-template-columns: minmax(0, 1fr); }
+  .shop-body { grid-template-columns: minmax(0, 1fr); }
+  .date-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .order-detail-grid { grid-template-columns: minmax(0, 1fr); }
+  .contact-facts, .contact-form { width: auto; }
+}
+
+/* Horizontal reveal travel is only safe where there is room beside the
+   element. On narrow screens it pushed full-width blocks past the viewport
+   edge while animating, so it becomes a vertical rise. */
+@media (max-width: 900px) {
+  .js-motion [data-reveal="left"],
+  .js-motion [data-reveal="right"] { --reveal-x: 0px; --reveal-y: 22px; }
+}
+
+/* The header runs out of room below ~400px. With 44px controls the row still
+   fits in a 320px content box (110 + 44 + 44 + 44 + 24 - 6 = 260 < 273). */
+@media (max-width: 400px) {
+  .header-inner { padding: 0 16px; gap: 12px; }
+  .cart-trigger { padding: 8px 11px; gap: 5px; }
+  .mobile-menu-button { margin-right: -6px; }
+  .brand-lockup { gap: 9px; }
+  .citrus-mark { width: 24px; height: 24px; }
+}
+
+/* ==========================================================================
+   Touch targets. Standalone controls get a real 44px box; inline text links
+   get a transparent 44px hit area so the type stays on its baseline.
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  .brand-link { min-height: 44px; align-items: center; }
+  .icon-trigger { width: 44px; height: 44px; }
+  .cart-trigger { min-width: 44px; }
+  .wizard-steps button { min-height: 44px; }
+  .deposit-callout .button { min-height: 44px; }
+  /* the chips were flex-shrinking to their min-content inside the scroller */
+  .category-list button { flex: 0 0 auto; min-width: 44px; padding: 5px 2px; }
+
+  .text-link, .footer-social, .shop-bottom-note a, .operational-strip a,
+  .highlight-order button, .track-search-card p button,
+  .notfound-links a { position: relative; }
+  .text-link::after, .footer-social::after, .shop-bottom-note a::after,
+  .operational-strip a::after, .highlight-order button::after,
+  .track-search-card p button::after, .notfound-links a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 44px;
+    transform: translateY(-50%);
+  }
+  .highlight-order { align-items: center; }
+}
+
+
+
 

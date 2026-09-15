@@ -62,9 +62,11 @@ export default function TrackOrder() {
   };
 
   const isRequest = resolved.kind === "request";
-  const stepIndex = resolved.kind === "sample"
-    ? (resolved.code === "CB-9051" ? 0 : depositPaid ? 2 : 1)
-    : depositPaid ? 2 : resolved.request.stepIndex;
+  const stepIndex = useMemo(() => {
+    if (resolved.kind === "sample") return resolved.code === "CB-9051" ? 0 : depositPaid ? 2 : 1;
+    if (resolved.kind === "request") return depositPaid ? 2 : resolved.request.stepIndex;
+    return 0;
+  }, [resolved, depositPaid]);
 
   return <>
     <section className="page-intro track-intro"><div className="page-rail" data-reveal="fade"><span>03</span><i /></div><div data-reveal="up"><span className="eyebrow">Order tracker</span><h1>Less wondering.<br /><em>More looking forward.</em></h1></div><div className="page-intro-aside" data-reveal="up"><p>Use the code in your order email to see where things stand. For a tour of the flow, try the sample order below.</p></div></section>
