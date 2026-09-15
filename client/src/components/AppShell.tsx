@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { OrderDrawer } from "@/components/OrderDrawer";
+import { MotionSystem } from "@/components/MotionSystem";
 
 export function AppShell({ children }: { children: ReactNode }) {
-  return <div className="app-shell"><SiteHeader /><main>{children}</main><SiteFooter /><OrderDrawer /></div>;
+  return <div className="app-shell"><MotionSystem /><SiteHeader /><main id="main">{children}</main><SiteFooter /><OrderDrawer /></div>;
 }
-
