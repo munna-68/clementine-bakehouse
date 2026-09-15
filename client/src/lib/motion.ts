@@ -115,13 +115,12 @@ export function registerReveals(root: ParentNode = document) {
     if (!el.closest("[data-reveal]")) countNodes.add(el);
   });
 
-  for (const el of countNodes) {
-    if (!el.hasAttribute(BOUND)) {
-      el.setAttribute(BOUND, "");
-      if (reduced) runCountUp(el);
-      else ensureObserver().observe(el);
-    }
-  }
+  countNodes.forEach((el) => {
+    if (el.hasAttribute(BOUND)) return;
+    el.setAttribute(BOUND, "");
+    if (reduced) runCountUp(el);
+    else ensureObserver().observe(el);
+  });
 }
 
 function updateScrollState() {
@@ -137,13 +136,13 @@ function updateScrollState() {
 
   if (!reduced && parallaxNodes.size) {
     const vh = window.innerHeight;
-    for (const el of parallaxNodes) {
+    parallaxNodes.forEach((el) => {
       const rect = el.getBoundingClientRect();
-      if (rect.bottom < -160 || rect.top > vh + 160) continue;
+      if (rect.bottom < -160 || rect.top > vh + 160) return;
       const strength = Number(el.dataset.parallax || "0.1");
       const offset = (rect.top + rect.height / 2 - vh / 2) * strength;
       el.style.setProperty("--parallax", `${offset.toFixed(2)}px`);
-    }
+    });
   }
 }
 
